@@ -1,0 +1,238 @@
+<div class="client-summary-div col-12">
+  <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '3px' }"></ngx-loading>
+  <app-response-message [customeResponse]="customeResponse" *ngIf="customeResponse.isVisible"></app-response-message>
+  <div class="ameri-health py-2 d-flex justify-content-between align-items-center col-12">
+    <div class="ameri-left col-10 d-flex gap-2 justify-content-start align-items-center">
+      <p class="anchor" title="AmeriHealth Mercy">{{this.clientModel?.clientName}}</p>
+    </div>
+    <div class="ameri-right col-2 d-flex justify-content-end align-items-center gap-2">      
+      <div class="button-1 d-flex flex-column align-items-center" title="Save Client"  [ngClass]="{'icon-disable': !(this.clientModel?.clientTypeKey != null && this.clientModel?.clientName)}">
+          <button class="option-buttons fas fa-save" (click)="addClient();"></button>
+      </div>
+      <div class="button-1 d-flex flex-column align-items-center" title="Reset">
+          <button class="option-buttons fa fa-undo"></button> 
+      </div>
+      <div class="button-2 d-flex flex-column justify-content-center align-items-center" title="Cancel">
+          <button class="option-buttons fa fa-times back-to-page-one"></button>
+      </div>
+    </div>
+  </div>
+  <div class="client-summary-content-div d-flex gap-2 col-12">
+    <div class="left-content col-6">
+      <div class="demographics-div rounded-2 rounded-bottom-3 p-3 border col-12">
+        <h6 class="indigo-bold fw-bold pb-1 col-12">Clients Demographics</h6>
+        <form class="form" #registerForm="ngForm"
+              [appCompareValidator]="['clientSitesCnt', 'activeSitesCnt']" (ngSubmit)="registerForm.form.valid"
+              novalidate autocomplete="off">
+          <div class="demographics-client-name col-12 d-flex form-group">
+            <label for="clientName" class="form-label required-star">Client Name :</label>
+            <div class="col-7">
+              <input type="text" id="clientName" class="form-control ps-2" [(ngModel)]="clientModel.clientName"
+                     name="clientName" (keypress)="keyPressAlphaNumeric($event)"
+                     #clientName="ngModel" [ngModelOptions]="{standalone: true}" maxlength="255" required>
+              <span class="text-danger"
+                    *ngIf="(clientName.touched || registerForm.submitted) && clientName.errors?.required">Client Name is required</span>
+            </div>
+          </div>
+          <div class="demographics-client-parent col-12 d-flex form-group">
+            <label for="client-parent" class="form-label">Client Parent :</label>
+            <div class="col-7">
+              <select name="parentClient" id="client-parent" class="form-select"
+                      [(ngModel)]="clientModel.parentClientKey">
+                <option *ngFor="let parentClient of this.parentClients"
+                        [ngValue]="parentClient.clientKey">{{parentClient.clientName}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="demographics-client-status col-12 d-flex form-group">
+            <label for="clientStatus" class="form-label">Client Status :</label>
+            <div class="col-7">
+              <input type="text" id="clientStatus" name="clientStatus" class="form-control ps-2"
+                     [(ngModel)]="clientModel.clientStatus"
+                     value="{{clientModel.clientStatus}}"
+                     disabled>
+            </div>
+          </div>
+          <div class="demographics-client-type col-12 d-flex form-group">
+            <label for="clientTypeKey" class="form-label required-star">Client Type :</label>
+            <div class="col-7">
+              <select name="clientTypeKey" id="clientTypeKey" class="form-select" [(ngModel)]="clientModel.clientTypeKey"
+              #clientTypeKey="ngModel" required>                
+              <option *ngFor="let clientType of this.clientTypes"
+                        [ngValue]="clientType.clientTypeKey">{{clientType.clientTypeDesc}}</option>
+              </select>
+              <span class="text-danger"
+                    *ngIf="(this.clientTypeKey?.touched || registerForm.submitted) && this.clientTypeKey?.errors?.required">Client Type is required</span>
+            </div>
+          </div>
+
+          <div class="corporate-address-div rounded-2 p-3 border col-12 mb-3 mt-3">
+            <h6 class="indigo-bold fw-bold pb-1 col-12">Corporate Address</h6>
+            <div class="corporate-address-line1 col-12 d-flex form-group">
+              <label for="address1" class="form-label">Line-1 :</label>
+              <div class="col-7">
+                <input type="text" id="address1" name="address1" class="form-control ps-2"
+                       value="{{clientModel.address1}}"
+                       maxlength="50" [(ngModel)]="clientModel.address1">
+              </div>
+            </div>
+            <div class="corporate-address-line2 col-12 d-flex form-group">
+              <label for="address2" class="form-label">Line-2 :</label>
+              <div class="col-7">
+                <input type="text" id="address2" name="address2" class="form-control ps-2" value="{{clientModel.address2}}"
+                       maxlength="50" [(ngModel)]="clientModel.address2">
+              </div>
+            </div>
+            <div class="corporate-address-city col-12 d-flex form-group">
+              <label for="city" class="form-label">City :</label>
+              <div class="col-7">
+                <input type="text" id="city" name="city" class="form-control ps-2" value="{{clientModel.city}}" maxlength="15"
+                       [(ngModel)]="clientModel.city">
+              </div>
+            </div>
+            <div class="corporate-address-state col-12 form-group d-flex">
+              <label for="state" class="form-label">State  :</label>
+              <div class="col-7">
+                <select name="state" id="state" name="state" class="form-select" [(ngModel)]="clientModel.state">
+                  <option *ngFor="let state of this.states"
+                          [ngValue]="state.state">{{state.description}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="corporate-address-zipcode form-group d-flex col-12">
+              <label for="zipCode" class="form-control-label">ZIP Code :</label>
+              <div class="col-7 d-flex gap-1">
+                <div class="col-4"><input type="text" class="form-control ps-2" id="zipCode" name="zipCode"
+                                          [(ngModel)]="clientModel.zipCode"
+                                          onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                                          value="{{clientModel.zipCode}}" maxlength="5"></div>
+                <div class="col-4"><input type="text" class="form-control ps-2" id="zipCodePlus4" name="zipCodePlus4"
+                                          onkeypress='return event.charCode >= 48 && event.charCode <= 57'
+                                          value="{{clientModel.zipCodePlus4}}" maxlength="4"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="demographics-total-client-sites form-group col-12 d-flex">
+            <label for="clientSitesCnt" class="form-label">Total Client Sites :</label>
+            <div class="col-7">
+              <input type="text" id="clientSitesCnt" name="clientSitesCnt" [(ngModel)]="clientModel.clientSitesCnt"
+                     name="clientSitesCnt"
+                     #clientSitesCnt="ngModel" class="form-control ps-2"
+                     onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+            </div>
+          </div>
+
+          <div class="demographics-active-client-sites form-group col-12 d-flex">
+            <label for="activeSitesCnt" class="form-label">Active Client Sites :</label>
+            <div class="col-7">
+              <input id="activeSitesCnt" [(ngModel)]="clientModel.activeSitesCnt" name="activeSitesCnt"
+                     type="text" name="activeSitesCnt"
+                     #activeSitesCnt="ngModel" class="form-control ps-2"
+                     onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+              <span class="text-danger" *ngIf=" activeSitesCnt.touched && activeSitesCnt.errors?.activeSitesGreater ">
+                            Total Client Sites should be Greater than or Equal to Active Client Sites
+                        </span>
+            </div>
+          </div>
+
+          <div class="demographics-client-since form-group col-12 d-flex">
+            <label for="clientSince" class="form-label">Client Since :</label>
+            <div class="col-7">
+              <input type="date" id="clientSince" name="clientSince" class="form-control ps-2" disabled>
+            </div>
+          </div>
+
+          <div class="demographics-term-date form-group col-12 d-flex">
+            <label for="termDate" class="form-label">Term Date :</label>
+            <div class="col-7">
+              <input type="date" id="termDate" name="termDate" class="form-control ps-2"
+                     value="${{clientModel.termDate}}"
+                     [(ngModel)]="clientModel.termDate">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="right-content col-6 pe-2">
+      <div class="financial-summary-div rounded-2 p-3 border col-12 mb-2">
+        <h6 class="indigo-bold fw-bold pb-1 col-12">Financial Summary</h6>
+
+        <div class="projected-annual-volume form-group d-flex col-12">
+          <label for="projPaidVol" class="form-label">Projected Annual Volume ($) :</label>
+          <div class="col-7">
+            <input type="text" id="projPaidVol" name="projPaidVol" [(ngModel)]="clientModel.projPaidVol" (blur)="populatePOAPercentage()"
+                   class="form-control ps-2" maxlength="15"
+                   onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+          </div>
+        </div>
+
+        <div class="text-of-members form-group col-12 d-flex">
+          <label for="projMemberCnt" class="form-label">Number Of Members :</label>
+          <div class="col-7">
+            <input type="text" id="projMemberCnt" name="projMemberCnt" class="form-control ps-2" [(ngModel)]="clientModel.projMemberCnt"
+                   maxlength="15" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+          </div>
+        </div>
+
+        <div class="projected-claim-line-volume form-group col-12 d-flex">
+          <label for="projClaimCnt" class="form-label">Projected Claim Line Volume :</label>
+          <div class="col-7">
+            <input type="number" id="projClaimCnt" name="projClaimCnt" class="form-control ps-2"
+                   [(ngModel)]="clientModel.projClaimCnt"
+                   maxlength="15" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+          </div>
+        </div>
+
+        <div class="projected-overpayerment form-group col-12 d-flex">
+          <label for="projSavingsVol" class="form-label">Projected Overpayment Avoidance ($) :</label>
+          <div class="col-7">
+            <input type="text" id="projSavingsVol" name="projSavingsVol" class="form-control ps-2" maxlength="15"
+                   [(ngModel)]="clientModel.projSavingsVol" (blur)="populatePOAPercentage()"
+                   onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+          </div>
+        </div>
+
+        <div class="avoidance-percent col-12 form-group d-flex">
+          <label for="avoidancePercent" class="form-label me-2">Projected Overpayment Avoidance <br> Percentage(%) :</label>
+          <div class="col-7">
+            <input type="text" id="avoidancePercent" class="form-control ps-2" disabled [(ngModel)]="clientModel.avoidancePercent">
+          </div>
+        </div>
+      </div>
+
+      <div class="production-operations-div col-12 rounded-2 rounded-bottom-3 border p-3">
+        <h6 class="indigo-bold fw-bold pb-1 col-12">Production Operations</h6>
+
+        <div class="form-group d-flex align-items-center gap-2">
+          <label for="wit">WIT (What If Tool) Client</label>
+          <div class="col-7">
+            <input type="checkbox" class="form-check-input align-middle" id="wit" name="wit" [(ngModel)]="clientModel.isWit10">
+          </div>
+        </div>
+        <div class="form-group d-flex align-items-center gap-2">
+          <label for="cis">CIS (Claim Inquiry Service) Client</label>
+          <div class="col-7">
+            <input type="checkbox" class="form-check-input align-middle" id="cis" name="cis" [(ngModel)]="clientModel.isCis10">
+          </div>
+        </div>
+
+        <div class="form-group d-flex align-items-center gap-2">
+          <label for="modelOffice">Model Office Content</label>
+          <div class="col-7">
+            <input type="checkbox" class="form-check-input align-middle" id="modelOffice" name="modelOffice"
+            [(ngModel)]="clientModel.modelOfficeTesting10">
+          </div>
+        </div>
+
+        <div class="form-group d-flex align-items-center gap-2">
+          <label for="receivesIdr">Receives IDR</label>
+          <div class="col-7">
+            <input type="checkbox" class="form-check-input align-middle" id="receivesIdr" name="receivesIdr"
+                   [(ngModel)]="clientModel.receivesIdr10">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
